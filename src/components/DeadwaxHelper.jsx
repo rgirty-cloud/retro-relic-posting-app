@@ -1,3 +1,4 @@
+import { supabase } from '../supabase'
 import { useState } from 'react'
 
 const CLUE_PATTERNS = {
@@ -14,7 +15,7 @@ const CLUE_PATTERNS = {
   st: { regex: /\bST\b/i, label: 'ST', confidence: 'weak' },
   sw: { regex: /\bSW\b/i, label: 'SW', confidence: 'weak' },
   sideNumber: { regex: /-\s*[12]\b/, label: 'Side number marker', confidence: 'weak' },
-  matrixString: { regex: /\b[A-Z0-9]{2,}(?:[-\/][A-Z0-9]{1,4})+\b/i, label: 'Matrix-style string', confidence: 'weak' },
+  matrixString: { regex: /\b[A-Z0-9]{2,}(?:[-/][A-Z0-9]{1,4})+\b/i, label: 'Matrix-style string', confidence: 'weak' },
 }
 
 const WORDING_SUGGESTIONS = {
@@ -50,6 +51,29 @@ function DeadwaxHelper({ manualAiNotes, setManualAiNotes }) {
   const [suggestions, setSuggestions] = useState([])
   const [cautionNotes, setCautionNotes] = useState([])
 
+  const saveRecord = async () => {
+    const { error } = await supabase
+      .from('records')
+      .insert([
+        {
+          artist,
+          album,
+          side_a_deadwax: sideA,
+          side_b_deadwax: sideB,
+          extra_clues: extraClues,
+          manual_ai_notes: manualAiNotes || '',
+          generated_listing: '',
+        },
+      ])
+
+    if (error) {
+      console.error('Save error:', error)
+      alert(`Error saving record: ${error.message}`)
+    } else {
+      alert('Record saved!')
+    }
+  }
+
   const detectClues = () => {
     const allText = `${sideA} ${sideB} ${extraClues}`.trim()
     const lowercaseText = allText.toLowerCase()
@@ -76,7 +100,10 @@ function DeadwaxHelper({ manualAiNotes, setManualAiNotes }) {
       detected.length > 0
         ? detected.map((clue) => {
             for (const [key, value] of Object.entries(WORDING_SUGGESTIONS)) {
-              if (value.toLowerCase().includes(clue.toLowerCase()) || clue.toLowerCase().includes(key)) {
+              if (
+                value.toLowerCase().includes(clue.toLowerCase()) ||
+                clue.toLowerCase().includes(key)
+              ) {
                 return value
               }
             }
@@ -88,7 +115,7 @@ function DeadwaxHelper({ manualAiNotes, setManualAiNotes }) {
 
     const notes = []
     if (detected.length === 0) {
-      notes.push('⚠️ No identifying features detected - recommend researching discogs for pressing info')
+      notes.push('⚠️ No identifying features detected - recommend researching Discogs for pressing info')
       notes.push('⚠️ Do not infer first pressing from matrix text alone.')
     }
     if (weakEvidence.length > 0) {
@@ -208,6 +235,9 @@ Respond in a clear, structured format.`
         </button>
         <button className="btn-secondary" onClick={handleAnalyzeInChatGPT}>
           Analyze in ChatGPT
+        </button>
+        <button className="btn-secondary" onClick={saveRecord}>
+          Save Record
         </button>
       </div>
 
