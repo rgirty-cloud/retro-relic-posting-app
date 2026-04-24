@@ -44,14 +44,23 @@ const FALLBACK_SUGGESTIONS = [
 function DeadwaxHelper({ manualAiNotes, setManualAiNotes }) {
   const [sideA, setSideA] = useState('')
   const [sideB, setSideB] = useState('')
+  const [sideC, setSideC] = useState('')
+  const [sideD, setSideD] = useState('')
+  const [showSidesCD, setShowSidesCD] = useState(false)
   const [extraClues, setExtraClues] = useState('')
   const [artist, setArtist] = useState('')
   const [album, setAlbum] = useState('')
+  const [price, setPrice] = useState('')
+  const [status, setStatus] = useState('in_stock')
   const [detectedClues, setDetectedClues] = useState([])
   const [suggestions, setSuggestions] = useState([])
   const [cautionNotes, setCautionNotes] = useState([])
+  const [saveMessage, setSaveMessage] = useState('')
 
   const saveRecord = async () => {
+    const today = new Date().toISOString().split('T')[0]
+    const dateSold = status === 'sold' ? today : null
+
     const { error } = await supabase
       .from('records')
       .insert([
@@ -60,9 +69,15 @@ function DeadwaxHelper({ manualAiNotes, setManualAiNotes }) {
           album,
           side_a_deadwax: sideA,
           side_b_deadwax: sideB,
+          side_c_deadwax: sideC || null,
+          side_d_deadwax: sideD || null,
           extra_clues: extraClues,
           manual_ai_notes: manualAiNotes || '',
           generated_listing: '',
+          price: price || null,
+          status: status,
+          date_added: today,
+          date_sold: dateSold,
         },
       ])
 
@@ -70,12 +85,30 @@ function DeadwaxHelper({ manualAiNotes, setManualAiNotes }) {
       console.error('Save error:', error)
       alert(`Error saving record: ${error.message}`)
     } else {
-      alert('Record saved!')
+      setSaveMessage('Record saved. Ready for next record.')
     }
   }
 
+  const handleNextRecord = () => {
+    setArtist('')
+    setAlbum('')
+    setSideA('')
+    setSideB('')
+    setSideC('')
+    setSideD('')
+    setShowSidesCD(false)
+    setExtraClues('')
+    setManualAiNotes('')
+    setDetectedClues([])
+    setSuggestions([])
+    setCautionNotes([])
+    setPrice('')
+    setStatus('in_stock')
+    setSaveMessage('')
+  }
+
   const detectClues = () => {
-    const allText = `${sideA} ${sideB} ${extraClues}`.trim()
+    const allText = `${sideA} ${sideB} ${sideC} ${sideD} ${extraClues}`.trim()
     const lowercaseText = allText.toLowerCase()
     const detected = []
     const weakEvidence = []
@@ -137,13 +170,17 @@ function DeadwaxHelper({ manualAiNotes, setManualAiNotes }) {
   }
 
   const handleAnalyzeInChatGPT = () => {
+    const sideCDText = showSidesCD && (sideC || sideD)
+      ? `\nSIDE C DEADWAX: ${sideC || 'Not provided'}\nSIDE D DEADWAX: ${sideD || 'Not provided'}`
+      : ''
+
     const prompt = `Please analyze this vinyl record's deadwax markings and provide interpretation for marketplace listing.
 
 ARTIST: ${artist || 'Unknown'}
 ALBUM: ${album || 'Unknown'}
 
 SIDE A DEADWAX: ${sideA || 'Not provided'}
-SIDE B DEADWAX: ${sideB || 'Not provided'}
+SIDE B DEADWAX: ${sideB || 'Not provided'}${sideCDText}
 EXTRA CLUES: ${extraClues || 'None provided'}
 
 Please provide:
@@ -160,7 +197,7 @@ Respond in a clear, structured format.`
   }
 
   const handleDetect = () => {
-    if (sideA.trim() || sideB.trim() || extraClues.trim()) {
+    if (sideA.trim() || sideB.trim() || sideC.trim() || sideD.trim() || extraClues.trim()) {
       detectClues()
     }
   }
@@ -218,6 +255,65 @@ Respond in a clear, structured format.`
         />
       </div>
 
+      {!showSidesCD && (
+        <button className="btn-toggle" onClick={() => setShowSidesCD(true)}>
+          + Add Sides C/D
+        </button>
+      )}
+
+      {showSidesCD && (
+        <>
+          <div className="form-group">
+            <label htmlFor="sideC">Side C Deadwax</label>
+            <textarea
+              id="sideC"
+              value={sideC}
+              onChange={(e) => setSideC(e.target.value)}
+              placeholder="Enter the text you see in the deadwax area of Side C..."
+              rows="4"
+            />
+          </div>
+
+          <div className="form-group">
+            <label htmlFor="sideD">Side D Deadwax</label>
+            <textarea
+              id="sideD"
+              value={sideD}
+              onChange={(e) => setSideD(e.target.value)}
+              placeholder="Enter the text you see in the deadwax area of Side D..."
+              rows="4"
+            />
+          </div>
+        </>
+      )}
+
+      <div className="form-row">
+        <div className="form-group">
+          <label htmlFor="price">Price</label>
+          <input
+            id="price"
+            type="number"
+            value={price}
+            onChange={(e) => setPrice(e.target.value)}
+            placeholder="0.00"
+            min="0"
+            step="0.01"
+          />
+        </div>
+
+        <div className="form-group">
+          <label htmlFor="status">Status</label>
+          <select
+            id="status"
+            value={status}
+            onChange={(e) => setStatus(e.target.value)}
+          >
+            <option value="in_stock">In Stock</option>
+            <option value="sold">Sold</option>
+          </select>
+        </div>
+      </div>
+
       <div className="form-group">
         <label htmlFor="extra">Extra Clues</label>
         <textarea
@@ -239,7 +335,16 @@ Respond in a clear, structured format.`
         <button className="btn-secondary" onClick={saveRecord}>
           Save Record
         </button>
+        {saveMessage && (
+          <button className="btn-secondary" onClick={handleNextRecord}>
+            Next Record
+          </button>
+        )}
       </div>
+
+      {saveMessage && (
+        <div className="save-message">{saveMessage}</div>
+      )}
 
       <div className="form-group">
         <label htmlFor="manualAiNotes">Manual AI Notes</label>

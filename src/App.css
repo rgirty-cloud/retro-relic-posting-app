@@ -29,10 +29,13 @@
 
 /* Tab Navigation */
 .tabs {
-  display: flex;
+  display: flex !important;
   border-bottom: 2px solid var(--border);
   background: var(--surface);
   overflow-x: auto;
+  visibility: visible !important;
+  position: relative;
+  z-index: 100;
 }
 
 .tab-button {
@@ -190,10 +193,39 @@
   transform: translateY(0);
 }
 
+.btn-toggle {
+  padding: 0.5rem 1rem;
+  background: transparent;
+  color: var(--accent);
+  border: 1px dashed var(--accent);
+  border-radius: 6px;
+  font-size: 0.9rem;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  margin-bottom: 1rem;
+}
+
+.btn-toggle:hover {
+  background: var(--surface);
+  border-style: solid;
+}
+
 .button-row {
   display: flex;
   align-items: center;
   margin-top: 0.5rem;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+}
+
+.save-message {
+  margin-top: 1rem;
+  padding: 0.75rem 1rem;
+  background: #e8f5e9;
+  border: 1px solid #4caf50;
+  border-radius: 6px;
+  color: #2e7d32;
+  font-weight: 500;
 }
 
 .btn-copy {
@@ -333,6 +365,240 @@
   word-break: break-word;
 }
 
+/* Inventory Styles */
+.inventory-controls {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+  margin-bottom: 2rem;
+}
+
+.search-box {
+  width: 100%;
+}
+
+.search-input {
+  width: 100%;
+  padding: 0.75rem 1rem;
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  font-size: 1rem;
+  background: var(--surface);
+  color: var(--text);
+}
+
+.search-input:focus {
+  outline: none;
+  border-color: var(--accent);
+  box-shadow: 0 0 0 2px rgba(75, 110, 255, 0.1);
+}
+
+.filter-buttons {
+  display: flex;
+  gap: 0.5rem;
+}
+
+.filter-btn {
+  padding: 0.5rem 1rem;
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  background: var(--surface);
+  color: var(--text);
+  cursor: pointer;
+  font-size: 0.9rem;
+  transition: all 0.2s;
+}
+
+.filter-btn:hover {
+  border-color: var(--accent);
+  color: var(--accent);
+}
+
+.filter-btn.active {
+  background: var(--accent);
+  border-color: var(--accent);
+  color: white;
+}
+
+.loading,
+.empty-state {
+  text-align: center;
+  padding: 3rem 1rem;
+  color: var(--text-light);
+}
+
+.records-grid {
+  display: grid;
+  gap: 1.5rem;
+}
+
+.record-card {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 1.5rem;
+  transition: all 0.3s ease;
+}
+
+.record-card:hover {
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+}
+
+.record-card.sold {
+  opacity: 0.7;
+}
+
+.record-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  margin-bottom: 0.5rem;
+}
+
+.record-header h3 {
+  margin: 0;
+  font-size: 1.25rem;
+  color: var(--text);
+}
+
+.status-badge {
+  padding: 0.25rem 0.75rem;
+  border-radius: 20px;
+  font-size: 0.8rem;
+  font-weight: 600;
+}
+
+.status-badge.in_stock {
+  background: #e8f5e9;
+  color: #2e7d32;
+}
+
+.status-badge.sold {
+  background: #ffebee;
+  color: #c62828;
+}
+
+.record-artist {
+  margin: 0 0 1rem 0;
+  color: var(--text-light);
+  font-size: 1rem;
+}
+
+.record-details {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 1rem;
+  margin-bottom: 1rem;
+  padding-bottom: 1rem;
+  border-bottom: 1px solid var(--border);
+}
+
+.detail-row {
+  display: flex;
+  gap: 0.5rem;
+}
+
+.detail-label {
+  font-weight: 600;
+  color: var(--text-light);
+}
+
+.detail-value {
+  color: var(--text);
+}
+
+.deadwax-section {
+  margin-bottom: 1rem;
+}
+
+.deadwax-section h4 {
+  margin: 0 0 0.5rem 0;
+  font-size: 0.9rem;
+  color: var(--text-light);
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.deadwax-side {
+  display: flex;
+  gap: 0.5rem;
+  margin-bottom: 0.5rem;
+  padding: 0.5rem;
+  background: var(--bg);
+  border-radius: 4px;
+}
+
+.side-label {
+  font-weight: 600;
+  color: var(--accent);
+  min-width: 24px;
+}
+
+.deadwax-text {
+  font-family: 'Monaco', 'Menlo', 'Ubuntu Mono', monospace;
+  font-size: 0.85rem;
+  color: var(--text);
+  word-break: break-all;
+}
+
+.extra-clues-section {
+  margin-bottom: 1rem;
+  padding: 0.75rem;
+  background: var(--bg);
+  border-radius: 4px;
+  border-left: 3px solid var(--accent);
+}
+
+.extra-clues-section h4 {
+  margin: 0 0 0.5rem 0;
+  font-size: 0.9rem;
+  color: var(--text-light);
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.extra-clues-section p {
+  margin: 0;
+  font-size: 0.9rem;
+  color: var(--text);
+}
+
+.record-actions {
+  display: flex;
+  gap: 0.5rem;
+  margin-top: 1rem;
+  padding-top: 1rem;
+  border-top: 1px solid var(--border);
+}
+
+.btn-action {
+  padding: 0.5rem 1rem;
+  border: none;
+  border-radius: 6px;
+  font-size: 0.9rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.btn-action.sold {
+  background: #c62828;
+  color: white;
+}
+
+.btn-action.sold:hover {
+  background: #b71c1c;
+}
+
+.btn-action.restock {
+  background: #2e7d32;
+  color: white;
+}
+
+.btn-action.restock:hover {
+  background: #1b5e20;
+}
+
 /* Mobile Responsive */
 @media (max-width: 640px) {
   .app-header {
@@ -348,13 +614,19 @@
   }
 
   .tabs {
-    display: flex;
+    display: flex !important;
     overflow-x: auto;
+    visibility: visible !important;
+    position: relative;
+    min-height: 50px;
   }
 
   .tab-button {
-    padding: 0.75rem;
-    font-size: 0.9rem;
+    padding: 0.75rem 0.5rem;
+    font-size: 0.8rem;
+    min-width: 90px;
+    text-align: center;
+    flex-shrink: 0;
   }
 
   .app-content {

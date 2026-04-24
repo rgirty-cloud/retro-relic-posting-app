@@ -2,6 +2,7 @@ import { useState } from 'react'
 import './App.css'
 import DeadwaxHelper from './components/DeadwaxHelper'
 import ListingHelper from './components/ListingHelper'
+import Inventory from './components/Inventory'
 
 function App() {
   const [activeTab, setActiveTab] = useState('deadwax')
@@ -27,6 +28,12 @@ function App() {
         >
           Listing Helper
         </button>
+        <button
+          className={`tab-button ${activeTab === 'inventory' ? 'active' : ''}`}
+          onClick={() => setActiveTab('inventory')}
+        >
+          Inventory
+        </button>
       </nav>
 
       <main className="app-content">
@@ -39,6 +46,7 @@ function App() {
         {activeTab === 'listing' && (
           <ListingHelper manualAiNotes={manualAiNotes} />
         )}
+        {activeTab === 'inventory' && <Inventory />}
       </main>
     </div>
   )
