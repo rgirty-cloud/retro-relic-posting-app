@@ -1,4 +1,4 @@
-import { supabase } from '../supabase'
+import { supabase, uploadRecordImage } from '../supabase'
 import { useState, useEffect } from 'react'
 
 function Inventory() {
@@ -6,6 +6,7 @@ function Inventory() {
   const [loading, setLoading] = useState(true)
   const [searchQuery, setSearchQuery] = useState('')
   const [statusFilter, setStatusFilter] = useState('all')
+  const [uploadingRecords, setUploadingRecords] = useState({})
 
   const fetchRecords = async () => {
     setLoading(true)
@@ -52,6 +53,31 @@ function Inventory() {
       alert('Error marking record as in stock')
     } else {
       fetchRecords()
+    }
+  }
+
+  const handleImageUpload = async (recordId, event) => {
+    const file = event.target.files?.[0]
+    if (!file) return
+
+    // Mark this record as uploading
+    setUploadingRecords((prev) => ({ ...prev, [recordId]: true }))
+
+    try {
+      const publicUrl = await uploadRecordImage(recordId, file)
+      
+      if (publicUrl) {
+        // Update local state to show the new image immediately
+        setRecords((prev) =>
+          prev.map((record) =>
+            record.id === recordId ? { ...record, image_url: publicUrl } : record
+          )
+        )
+        alert('Image uploaded successfully!')
+      }
+    } finally {
+      // Clear uploading state
+      setUploadingRecords((prev) => ({ ...prev, [recordId]: false }))
     }
   }
 
@@ -145,6 +171,36 @@ function Inventory() {
               </div>
 
               <p className="record-artist">{record.artist || 'Unknown Artist'}</p>
+
+              {/* Image thumbnail and upload */}
+              <div className="record-image-section">
+                {record.image_url ? (
+                  <img
+                    src={record.image_url}
+                    alt={`${record.album} cover`}
+                    className="record-thumbnail"
+                  />
+                ) : (
+                  <div className="no-image-placeholder">No Photo</div>
+                )}
+                <label className="image-upload-label photo-btn">
+                  {uploadingRecords[record.id] ? (
+                    <span className="uploading-text">Uploading...</span>
+                  ) : (
+                    <>
+                      <input
+                        type="file"
+                        accept="image/*"
+                        onChange={(e) => handleImageUpload(record.id, e)}
+                        className="image-upload-input"
+                      />
+                      <span className="upload-btn-text">
+                        {record.image_url ? 'Change Photo' : 'Add Photo'}
+                      </span>
+                    </>
+                  )}
+                </label>
+              </div>
 
               <div className="record-details">
                 <div className="detail-row">
